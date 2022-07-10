@@ -1,0 +1,143 @@
+cabal-version:      3.0
+name:               NFT-Unlocked-Liquidity
+version:            0.1.0.0
+
+license: Apache-2.0
+license-files: LICENSE
+author:             Rohan Mitta
+maintainer:         mitta.rohan@gmail.com
+
+-- A copyright notice.
+-- copyright:
+-- category:
+-- extra-source-files: CHANGELOG.md
+
+flag defer-plugin-errors
+    description:
+        Defer errors from the plugin, useful for things like Haddock that can't handle it.
+    default: False
+    manual: True
+
+common lang
+    default-language:   Haskell2010 
+    ghc-options:
+      -Wall -Wnoncanonical-monad-instances
+      -Wincomplete-uni-patterns -Wincomplete-record-updates
+      -Wredundant-constraints -Widentities -rtsopts
+      -- See Plutus Tx readme
+      -fobject-code -fno-ignore-interface-pragmas -fno-omit-interface-pragmas
+    if flag(defer-plugin-errors)
+        ghc-options: -fplugin-opt PlutusTx.Plugin:defer-errors
+
+library
+  -- Include this to import the ghc-options and language above 
+    import: lang
+  -- This is the directory location where our onchain code files will go, and also a utility function for my project 
+    hs-source-dirs: src
+  -- These are the file names that will get called by our executable files listed below 
+    exposed-modules:
+      Utils
+      Test_Contract1
+      Test_Token
+  -- These are the imports needed for the files Token.Onchain and Utils. Always include  base >= 4.9 && < 5 for Haskell.                     
+    build-depends:
+      base >= 4.9 && < 5,
+      aeson -any,
+      bytestring -any,
+      containers -any,
+      freer-extras -any,
+      playground-common -any,
+      cardano-api,
+      cardano-crypto-class,
+      cardano-ledger-core,
+      serialise,
+      plutus-contract -any,
+      plutus-ledger -any,
+      plutus-ledger-api -any,
+      plutus-ledger-constraints -any,
+      plutus-tx -any,
+      plutus-tx-plugin -any,
+      text -any,
+      lens -any,
+
+-- This is the first executable file that will get called from the cabal exec command, and will be the main :: IO () files for our project 
+executable token-policy
+-- Include this to import the ghc-options and language above 
+  import: lang
+-- This is the file name token-policy.hs, one of the executable files 
+  main-is: token-policy.hs
+-- This is the local directory location of token-policy.hs 
+  hs-source-dirs: app
+-- Always include this
+  ghc-options:
+    -threaded
+-- "My executable files have no imports, therefore I only need to include base >= 4.9 && < 5, and the project name"
+-- Don't understand the above line, the files do have imports.
+  build-depends:
+    base >= 4.9 && < 5,
+    NFT-Unlocked-Liquidity,
+--These are unclear if needed:
+--ALSO, SEEMS LIKE SOMETHING HERE SERIOUSLY MESSED UP THE NIX-SHELL Building? Or maybe not?  
+    data-default -any,
+    plutus-contract -any,
+    plutus-pab -any,
+    aeson -any,
+    freer-simple -any,
+    prettyprinter -any,
+    freer-extras -any,
+    plutus-ledger -any,
+    openapi3 -any,
+    cardano-api,
+
+executable checkToken-script
+  import: lang
+  main-is: checkToken-script.hs
+  hs-source-dirs: app
+  ghc-options:
+    -threaded
+  build-depends:
+    base >= 4.9 && < 5,
+    NFT-Unlocked-Liquidity,
+    data-default -any,
+    plutus-contract -any,
+    plutus-pab -any,
+    aeson -any,
+    freer-simple -any,
+    prettyprinter -any,
+    freer-extras -any,
+    plutus-ledger -any,
+    openapi3 -any,
+    cardano-api,
+
+--Same as above?
+executable token-name
+  import: lang
+  main-is: token-name.hs
+  hs-source-dirs:      app
+  ghc-options:         -threaded
+  build-depends:       base >= 4.9 && < 5,
+                       NFT-Unlocked-Liquidity
+                     
+
+--No advice given on this, see Plutus Week 8
+--test-suite plutus-example-projects-test
+--  import: lang
+--  type: exitcode-stdio-1.0
+--  main-is: Spec.hs
+--  hs-source-dirs: examples/test
+--  other-modules:
+--    Spec.Game
+--  build-depends:
+--    plutus-tx -any,
+--    plutus-tx-plugin,
+--    plutus-contract -any,
+--    plutus-pab -any,
+--    plutus-ledger -any,
+--  build-depends:
+--    base >=4.9 && <5,
+--    tasty -any,
+--    tasty-hunit -any,
+--    text -any,
+--    tasty-hedgehog >=0.2.0.0
+
+
