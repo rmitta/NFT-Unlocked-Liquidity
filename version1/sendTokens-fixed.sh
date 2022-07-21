@@ -1,13 +1,13 @@
-amt=$1
-changeAmt=$2
-tn=$3
-sendAddrFile=$4
-skeyFile=$5
-receiveAddrFile=$6
-authAddrFile=$7
+amt=1
+changeAmt=9
+tn="DirectEd Token"
+sendAddrFile=testnet/Authority.addr
+skeyFile=testnet/Authority.skey
+receiveAddrFile=testnet/Recipient.addr
+authAddrFile=testnet/Authority.addr
 #may require two inputs, one with tokens typically cannot be split.
-oref1=$8
-oref2=$9
+oref1=69f3847abf9835fd912008fc2cd71059c585539f26ead7b489e91e4706ed0723#1
+oref2=69f3847abf9835fd912008fc2cd71059c585539f26ead7b489e91e4706ed0723#0
 
 echo "amt: $amt"
 echo "changeAmt = $changeAmt"
@@ -32,7 +32,7 @@ unsignedFile=testnet/tx.unsigned
 signedFile=testnet/tx.signed
 pid=$(cardano-cli transaction policyid --script-file $policyFile)
 
-tnHex=$(cat testnet/testToken.nameHex)
+tnHex=$(cabal exec token-name "$tn")
 
 
 v="$amt $pid.$tnHex"
@@ -44,8 +44,8 @@ echo "receive address: $receiveAddr"
 echo "currency symbol: $pid"
 
 cardano-cli transaction build \
-    --babbage-era \
     $MAGIC \
+    --babbage-era \
     --change-address $sendAddr \
     --tx-in $oref1 \
     --tx-in $oref2 \

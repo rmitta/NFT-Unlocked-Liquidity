@@ -9,4 +9,6 @@ authAddr=$(cat $authAddrFile)
 scriptFile=testnet/checkToken.script
 cabal exec checkToken-script $policyFile authAddr
 
-./sendProper.sh $amt $(cat $scriptFile) $skeyFile $changeAddr $txIn
+scriptAddress=$(cardano-cli address build --payment-script-file $scriptFile $MAGIC)
+
+./sendProper.sh $amt $scriptAddress $skeyFile $changeAddr $txIn

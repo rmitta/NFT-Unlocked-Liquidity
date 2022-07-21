@@ -5,7 +5,7 @@ txIn2=$4
 txIn3=$5
 txIn4=$6
 txIn5=$7
-txIn6=$8
+
 
 cardano-cli transaction build \
     --babbage-era \
@@ -16,7 +16,6 @@ cardano-cli transaction build \
     --tx-in $txIn3 \
     --tx-in $txIn4 \
     --tx-in $txIn5 \
-    --tx-in $txIn6 \
     --out-file testnet/tx.body
 
 cardano-cli transaction sign \

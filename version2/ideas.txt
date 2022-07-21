@@ -1,0 +1,15 @@
+What could the next version of the smart contract contain?
+
+V0.1: Showing possesion of a token allows the recipient to withdraw all funds at the address. 
+
+Potential other properties:
+- Consumes token, allows a withdrawal up to a certain amount.
+- Withdrawal allowed in some timespan.
+- Token must contain certain metadata / other properties of the token must be satisfied?
+    - Token creation contract may be made more complicated - for example requiring multisig?
+
+More Complicated:
+
+Contracts that change state:
+- Collect a pool of students, then select the top one after a deadline. Based on authorized tokens with metadata.
+- Token grants authority to a certain wallet, they can then withdraw n steps of the scholarship with n different tokens.
