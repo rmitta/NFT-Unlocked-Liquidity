@@ -1,15 +1,29 @@
 What could the next version of the smart contract contain?
 
-V0.1: Showing possesion of a token allows the recipient to withdraw all funds at the address. 
+V0.1: Showing possesion of a specific token allows the recipient to withdraw all funds at the address. 
+V0.2: Consumes Token, Allows Withdrawal of up to a Certain Amount. 
 
 Potential other properties:
-- Consumes token, allows a withdrawal up to a certain amount.
-- Withdrawal allowed in some timespan.
-- Token must contain certain metadata / other properties of the token must be satisfied?
+- Consumes token, allows a withdrawal up to a certain amount.(Token gets burned, which means you must design your minting policy so that is possible!)
+- Withdrawal allowed in some timespan. (Note potential changes in slot length -> problems?)
+- Can the deadline be changed? (for example automatically extend deadline if a certian condition is not reached)
+
+
+- Token must contain certain data / other properties of the token must be satisfied? (How can a token carry information?)
     - Token creation contract may be made more complicated - for example requiring multisig?
+
+!-! If SC enforces tokenName = WalletID (and the minting policy does so too), then this is basically a SOULBOUND TOKEN!
+    - This gets around the idea of people trading tokens. 
+    - Then it basically is a VC (in terms of tradeability)
 
 More Complicated:
 
 Contracts that change state:
-- Collect a pool of students, then select the top one after a deadline. Based on authorized tokens with metadata.
+- For contracts that maintain state, let each accepted student have their own state (i.e. their own instance of the contract)
+- Collect a pool of students, then select the top one after a deadline. Based on authorized tokens with data.
 - Token grants authority to a certain wallet, they can then withdraw n steps of the scholarship with n different tokens.
+
+
+Q: How can we make the SC updatable? How do we avoid the scenario that money is locked somewhere forever? 
+- With deadlines! E.g. after a final deadline, money can be reclaimed by e.g DirectEd. (Or Donor?)
+
