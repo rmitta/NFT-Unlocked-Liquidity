@@ -28,6 +28,7 @@ common lang
       -fobject-code -fno-ignore-interface-pragmas -fno-omit-interface-pragmas
     if flag(defer-plugin-errors)
         ghc-options: -fplugin-opt PlutusTx.Plugin:defer-errors
+        
 
 library
   -- Include this to import the ghc-options and language above 
@@ -37,8 +38,8 @@ library
   -- These are the file names that will get called by our executable files listed below 
     exposed-modules:
       Utils
-      Test_Contract1
-      Test_Token
+      Test_Contract2
+      Test_Token2
   -- These are the imports needed for the files Token.Onchain and Utils. Always include  base >= 4.9 && < 5 for Haskell.                     
     build-depends:
       base >= 4.9 && < 5,

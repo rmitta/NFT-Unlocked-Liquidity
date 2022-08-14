@@ -11,10 +11,11 @@
 {-# LANGUAGE TypeFamilies        #-}
 {-# LANGUAGE TypeOperators       #-}
 
+{-# OPTIONS_GHC -fno-ignore-interface-pragmas #-}
+
 module Test_Token2 where
 
 import           Control.Monad          hiding (fmap)
-import qualified Data.Map               as Map
 import           Data.Text              (Text)
 import           Data.Void              (Void)
 import           Data.Maybe             (fromJust)
@@ -26,7 +27,7 @@ import           Ledger                 hiding (mint, singleton)
 import           Ledger.Constraints     as Constraints
 import qualified Ledger.Typed.Scripts   as Scripts
 import Ledger.Value as Value ( flattenValue, singleton )
-import           Prelude                (IO, Semigroup (..), Show (..), String, undefined)
+import           Prelude                (IO, Show (..), String)
 import           Text.Printf            (printf)
 import           Wallet.Emulator.Wallet
 
@@ -54,7 +55,7 @@ policy :: PaymentPubKeyHash -> Scripts.MintingPolicy
 policy pkh = mkMintingPolicyScript $
   $$(PlutusTx.compile [|| \tn' pkh' -> Scripts.wrapMintingPolicy $ mkPolicy tn' pkh' ||])
   `PlutusTx.applyCode`
-  PlutusTx.liftCode Test_Token.tokenName
+  PlutusTx.liftCode Test_Token2.tokenName
   `PlutusTx.applyCode`
   PlutusTx.liftCode pkh
 
@@ -67,7 +68,7 @@ type TokenSchema = Endpoint "mint" Integer
 mint :: Integer -> Contract w TokenSchema Text ()
 mint n = do
     pkh <- Contract.ownPaymentPubKeyHash
-    let val = singleton (curSymbol pkh) Test_Token.tokenName n
+    let val = singleton (curSymbol pkh) Test_Token2.tokenName n
         lookups = Constraints.mintingPolicy $ policy pkh
         tx = Constraints.mustMintValue val
     ledgerTx <- submitTxConstraintsWith @Void lookups tx
@@ -76,7 +77,7 @@ mint n = do
 
 burn :: (Integer, PaymentPubKeyHash) -> Contract w TokenSchema Text ()
 burn (n, pkh) = do
-    let val = singleton (curSymbol pkh) Test_Token.tokenName (- n)
+    let val = singleton (curSymbol pkh) Test_Token2.tokenName (- n)
         lookups = Constraints.mintingPolicy $ policy pkh
         tx = Constraints.mustMintValue val
     ledgerTx <- submitTxConstraintsWith @Void lookups tx
@@ -107,9 +108,9 @@ test2 = runEmulatorTraceIO $ do
     let w1State = emptyWalletState w1
     let pkh1 = PaymentPubKeyHash $ fromJust $ fmap ownAddress w1State >>= toPubKeyHash
     let val = singleton (curSymbol pkh1) Test_Token2.tokenName 1
-    payToWallet w1 w2 val 
+    _ <- payToWallet w1 w2 val 
     void $ Emulator.waitNSlots 1
-    callEndpoint @"burn" h2 $ (1, pkh1)
+    callEndpoint @"burn" h2 (1, pkh1)
     void $ Emulator.waitNSlots 1
 
 

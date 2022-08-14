@@ -41,8 +41,8 @@ import qualified Ledger                      as Plutus
 import           Wallet.Emulator.Wallet      (WalletId (..), Wallet (..))
 import           Wallet.Types                (ContractInstanceId (..))
 
-import           Test_Token                  as Test_Token
-import           Test_Contract1              as Test_Contract1
+import           Test_Token2                  as Test_Token
+import           Test_Contract2              as Test_Contract1
 
 dataToScriptData :: Data -> ScriptData
 dataToScriptData (Constr n xs) = ScriptDataConstructor n $ dataToScriptData <$> xs
