@@ -11,7 +11,8 @@
 {-# LANGUAGE TypeFamilies        #-}
 {-# LANGUAGE TypeOperators       #-}
 
-{-# OPTIONS_GHC -fno-ignore-interface-pragmas #-}
+{-# OPTIONS_GHC -fno-ignore-interface-pragmas #-} -- essential, but maybe not enough?
+
 
 module Test_Token2 where
 

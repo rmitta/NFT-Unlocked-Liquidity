@@ -43,6 +43,7 @@ import           Wallet.Types                (ContractInstanceId (..))
 
 import           Test_Token2                  as Test_Token
 import           Test_Contract2              as Test_Contract1
+import Data.Bool (Bool)
 
 dataToScriptData :: Data -> ScriptData
 dataToScriptData (Constr n xs) = ScriptDataConstructor n $ dataToScriptData <$> xs
