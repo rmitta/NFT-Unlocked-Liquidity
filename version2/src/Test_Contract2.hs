@@ -50,6 +50,7 @@ import           Prelude                (IO, Semigroup (..), Show (..), String)
 import           Text.Printf            (printf)
 import           Wallet.Emulator.Wallet
 import           Test_Token2             as Test_Token
+import qualified Ledger.Constraints as Constraint
 
 withdrawLimit :: Value.Value
 withdrawLimit = lovelaceValueOf 10_000_000
@@ -121,7 +122,6 @@ give pkh amount = do
     void $ awaitTxConfirmed $ getCardanoTxId ledgerTx
     Contract.logInfo @String $ printf "gave %s lovelace to the script address" (show amount)
 
-
 grab :: PaymentPubKeyHash -> () -> Contract w Contract1Schema Text ()
 grab pkh () = do
     utxos <- utxosAt $ scrAddress pkh
@@ -129,19 +129,27 @@ grab pkh () = do
     ownUtxos <- utxosAt $ pubKeyHashAddress pkhOwn Nothing -- This nothing is questionable, what if we are staking!
     let t               = Value.singleton (Test_Token.curSymbol pkh) Test_Token.tokenName 1
         orefs           = fst <$> Map.toList utxos
---        a               = map (^.ciTxOutValue) $ snd <$> Map.toList utxos
+        totalValAtScript = sum $ _ciTxOutValue . snd <$> Map.toList utxos 
+
+
+
+        --ab               =
         lookups         = Constraints.unspentOutputs (Map.union utxos ownUtxos) <>
-                            Constraints.otherScript (validator pkh) <> Constraints.ownPaymentPubKeyHash pkhOwn -- to fix "missing ownPKH"
+                            Constraints.mintingPolicy (Test_Token.policy pkh) 
+                            <> Constraints.typedValidatorLookups (typedValidator pkh) <> Constraint.otherScript (validator pkh)
+                            <> Constraints.ownPaymentPubKeyHash pkhOwn -- to fix "missing ownPKH"
 --       totalAvailable  = 1
-        tx :: TxConstraints Void Void
+        tx :: TxConstraints () ()
         tx      = mconcat [Constraints.mustSpendScriptOutput oref $ Redeemer $ PlutusTx.toBuiltinData ()| oref <- orefs]
-                    <> Constraints.mustSpendAtLeast t <> Constraints.mustMintValue (negate t)
-    ledgerTx <- adjustAndSubmitWith @Void lookups tx
+                     <> Constraints.mustMintValue (negate t)
+                     <> Constraints.mustPayToTheScript () (totalValAtScript - withdrawLimit)
+    ledgerTx <- adjustAndSubmitWith @Contract1Type lookups tx
     void $ awaitTxConfirmed $ getCardanoTxId ledgerTx
     Contract.logInfo @String $ printf "grabbed some money and burned the token"
 ---Currently tries to grab everything. Needs to be changed to grabbing up to 10 ADA. This requires actually picking 
 ---certain UTXOs to use, OR requires SC design that only permits one UTXO at a time (though that doesn't actually make 
 ---100% sense, since anyone can always put money at a SC
+-- Now need to add conditions for when there's not enough money at the script?
 
 --TODO: Calculate total of mustSpendScriptOutputs, 
 --      slOwnPaymentPubKeyHash to get the contract's pubkeyhash
@@ -181,7 +189,7 @@ test = runEmulatorTraceIO $ do
     h2' <- activateContractWallet w2 $ Test_Contract2.endpoints pkh1
     callEndpoint @"mint" h1 1337
     void $ Emulator.waitNSlots 1
-    callEndpoint @"give" h2' 10000000
+    callEndpoint @"give" h2' 20000000
     void $ Emulator.waitNSlots 1
     callEndpoint @"grab" h1' ()
     void $ Emulator.waitNSlots 1
