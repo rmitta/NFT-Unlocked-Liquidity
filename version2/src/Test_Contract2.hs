@@ -132,8 +132,7 @@ grab pkh () = do
     let t               = Value.singleton (Test_Token.curSymbol pkh) Test_Token.tokenName 1
         orefs           = fst <$> Map.toList utxos
         totalValAtScript = sum $ _ciTxOutValue . snd <$> Map.toList utxos 
-
-        --ab               =
+        
         lookups         = Constraints.unspentOutputs (Map.union utxos ownUtxos) <>
                             Constraints.mintingPolicy (Test_Token.policy pkh) 
                             <> Constraints.typedValidatorLookups (typedValidator pkh) <> Constraint.otherScript (validator pkh)
@@ -146,13 +145,10 @@ grab pkh () = do
                         <> Constraints.mustMintValue (negate t)
                         <> Constraints.mustPayToTheScript () (totalValAtScript - withdrawLimit)
                         <> Constraints.mustPayToPubKey pkhOwn withdrawLimit
-            ledgerTx <- submitTxConstraintsWith lookups tx
---    ledgerTx <- adjustAndSubmitWith @Contract1Type lookups tx
+--            ledgerTx <- submitTxConstraintsWith lookups tx
+            ledgerTx <- adjustAndSubmitWith @Contract1Type lookups tx
             void $ awaitTxConfirmed $ getCardanoTxId ledgerTx
             Contract.logInfo @String $ printf "grabbed some money and burned the token"
-
--- Now need to add conditions for when there's not enough money at the script?
--- 
 
 adjustAndSubmitWith :: ( PlutusTx.FromData (Scripts.DatumType a)
                        , PlutusTx.ToData (Scripts.RedeemerType a)
@@ -192,3 +188,7 @@ test = runEmulatorTraceIO $ do
     void $ Emulator.waitNSlots 1
     callEndpoint @"grab" h1' ()
     void $ Emulator.waitNSlots 1
+
+
+--TODO:
+-- Learn how to deal with the problems of ADJUST (and min ada). 
